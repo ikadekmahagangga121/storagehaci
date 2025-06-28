@@ -46,6 +46,7 @@ export default function HomePage() {
         router.push('/login')
         return
       }
+      setUser(data.user)
     } catch (error) {
       console.error('Auth check failed:', error)
       router.push('/login')
@@ -138,7 +139,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Upload Section */}
           <div className="lg:col-span-1">
-            <FileUpload onUploadComplete={fetchStats} />
+            <FileUpload onUploadComplete={fetchStats} userId={user?.id} />
           </div>
           {/* File List Section */}
           <div className="lg:col-span-2">

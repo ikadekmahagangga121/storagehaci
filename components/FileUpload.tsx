@@ -5,6 +5,7 @@ import { Upload, X, File, CheckCircle, AlertCircle, Music, Video, Phone, Image, 
 
 interface FileUploadProps {
   onUploadComplete?: () => void
+  userId?: string | number
 }
 
 // File type categories
@@ -41,7 +42,7 @@ const FILE_CATEGORIES = {
   }
 }
 
-export default function FileUpload({ onUploadComplete }: FileUploadProps) {
+export default function FileUpload({ onUploadComplete, userId }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<Array<{name: string, category: string, size: string}>>([])
@@ -112,7 +113,7 @@ export default function FileUpload({ onUploadComplete }: FileUploadProps) {
         const formData = new FormData()
         formData.append('file', file)
         formData.append('title', file.name)
-        formData.append('user_id', '') // Isi jika ada user id
+        formData.append('user_id', userId ? String(userId) : '')
         // Step 1: Upload to storage
         const res = await fetch('/api/upload', {
           method: 'POST',
