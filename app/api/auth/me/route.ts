@@ -1,19 +1,18 @@
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import getDatabase from '@/lib/neon'
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('session')
+    // Ambil cookie dari request (bukan next/headers)
+    const sessionCookie = request.cookies.get('session')?.value;
     
     if (!sessionCookie) {
       return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 })
     }
 
-    const session = JSON.parse(sessionCookie.value)
+    const session = JSON.parse(sessionCookie)
     const userId = session.userId
 
     const db = await getDatabase()
