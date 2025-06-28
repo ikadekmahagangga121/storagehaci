@@ -1,0 +1,28 @@
+name: Backup Neon DB
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Setiap jam 2 pagi UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Backup Neon DB
+        env:
+          PG_URL: ${{ secrets.PG_URL }}
+        run: |
+          pg_dump --dbname="$PG_URL" --format=custom --file=backup-$(date +%Y%m%d-%H%M%S).dump
+
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: neon-backup
+          path: backup-*.dump 
