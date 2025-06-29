@@ -10,19 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create backup directory
+        run: mkdir -p backups
 
       - name: Backup Neon DB
         env:
           PG_URL: ${{ secrets.PG_URL }}
         run: |
-          pg_dump --dbname="$PG_URL" --format=custom --file=backup-$(date +%Y%m%d-%H%M%S).dump
+          BACKUP_FILE="backups/neon-backup-$(date +%Y%m%d-%H%M%S).dump"
+          pg_dump --dbname="$PG_URL" --format=custom --file="$BACKUP_FILE"
+          echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+          ls -la backups/
 
       - name: Upload backup as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: neon-backup
-          path: backup-*.dump 
+          name: neon-backup-$(date +%Y%m%d-%H%M%S)
+          path: backups/*.dump
+          retention-days: 30 

@@ -18,6 +18,10 @@ interface FileItem {
   provider?: string
 }
 
+interface FileListProps {
+  onFileChange?: () => void
+}
+
 const CATEGORY_ICONS = {
   music: Music,
   video: Video,
@@ -38,7 +42,7 @@ const CATEGORY_COLORS = {
 
 const ITEMS_PER_PAGE = 20
 
-export default function FileList() {
+export default function FileList({ onFileChange }: FileListProps) {
   const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
@@ -92,6 +96,9 @@ export default function FileList() {
         document.body.removeChild(link)
         // Clean up
         window.URL.revokeObjectURL(url)
+        
+        // Refresh stats after download
+        onFileChange?.()
       } else {
         const errorData = await response.json()
         setError(errorData.error || 'Gagal download file')
@@ -111,8 +118,9 @@ export default function FileList() {
       })
       
       if (response.ok) {
-        // Refresh file list
+        // Refresh file list and stats
         fetchFiles()
+        onFileChange?.()
       } else {
         const errorData = await response.json()
         setError(errorData.error || 'Gagal hapus file')
